@@ -53,11 +53,20 @@ export default function ReportsPage({ records }) {
       "At Residential?","Accepts Digital?","Payment Types","Business Hours","Trading Hours Other",
       "Comments","PC Lat","PC Long"]];
     for (const r of complete) {
+      const isYes = rc(r.hasBusiness) === "YES";
+      const isNo  = rc(r.hasBusiness) === "NO";
       rows.push([q(r.rcNumber),q(r.name),q(r.pc),q(r.region),rd(r.date),
-        rc(r.hasBusiness),rc(r.ifNoBusiness),q(r.noBusinessOther),
-        rc(r.businessType),q(r.businessTypeOther),
-        rc(r.atResidential),rc(r.acceptsDigital),rm(r.paymentTypes),
-        rc(r.businessHours),q(r.tradingHoursOther),q(r.comments),
+        rc(r.hasBusiness),
+        isNo  ? rc(r.ifNoBusiness)      : "",
+        isNo  ? q(r.noBusinessOther)    : "",
+        isYes ? rc(r.businessType)      : "",
+        isYes ? q(r.businessTypeOther)  : "",
+        isYes ? rc(r.atResidential)     : "",
+        isYes ? rc(r.acceptsDigital)    : "",
+        isYes ? rm(r.paymentTypes)      : "",
+        isYes ? rc(r.businessHours)     : "",
+        isYes ? q(r.tradingHoursOther)  : "",
+        q(r.comments),
         r.pcLat||"",r.pcLong||""]);
     }
     dl(rows, `mca-completed-${from}-to-${to}.csv`);
@@ -68,8 +77,13 @@ export default function ReportsPage({ records }) {
       "Is there a Business?","If NO - What?","Business Type","Accepts Digital?","Payment Types","Business Hours","Comments"]];
     for (const r of filtered) {
       rows.push([q(r.rcNumber),q(r.name),q(r.pc),q(r.region),r.status,rd(r.date),
-        rc(r.hasBusiness),rc(r.ifNoBusiness),rc(r.businessType),
-        rc(r.acceptsDigital),rm(r.paymentTypes),rc(r.businessHours),q(r.comments)]);
+        rc(r.hasBusiness),
+        rc(r.hasBusiness)==="NO"  ? rc(r.ifNoBusiness) : "",
+        rc(r.hasBusiness)==="YES" ? rc(r.businessType) : "",
+        rc(r.hasBusiness)==="YES" ? rc(r.acceptsDigital) : "",
+        rc(r.hasBusiness)==="YES" ? rm(r.paymentTypes) : "",
+        rc(r.hasBusiness)==="YES" ? rc(r.businessHours) : "",
+        q(r.comments)]);
     }
     dl(rows, `mca-all-sites-${from}-to-${to}.csv`);
   };
