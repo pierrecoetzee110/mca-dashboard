@@ -159,8 +159,8 @@ export default function Overview({ records, onNavigate }) {
         <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlog}</div><div className="stat-sub">{total>0?Math.round((backlog/total)*100):0}% of total</div></div>
       </div>
 
-      {/* Overall progress + activity + business */}
-      <div className="grid-3">
+      {/* Overall progress + activity */}
+      <div className="grid-2">
         <div className="card">
           <div className="card-title">Overall completion</div>
           <div style={{display:"flex",alignItems:"center",gap:24}}>
@@ -183,18 +183,6 @@ export default function Overview({ records, onNavigate }) {
             <div className="activity-row"><span className="activity-label">Completed this month</span><span className="activity-value" style={{color:"var(--green)"}}>{completedMonth}</span></div>
             <div className="divider" />
             <div className="activity-row"><span className="activity-label">Still pending</span><span className="activity-value" style={{color:"var(--orange)"}}>{backlog + inProg}</span></div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-title">Business at site (completed)</div>
-          <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <Ring pct={totalCompleted>0?Math.round((totalYes/totalCompleted)*100):0} color="var(--green)" size={100} />
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              <div className="legend-row"><span className="legend-dot" style={{background:"var(--green)"}}/>Business found <strong>{totalYes}</strong></div>
-              <div className="legend-row"><span className="legend-dot" style={{background:"#ef4444"}}/>No business <strong>{totalNo}</strong></div>
-              <div className="legend-row"><span className="legend-dot" style={{background:"var(--dim)"}}/>Total surveyed <strong>{totalCompleted}</strong></div>
-            </div>
           </div>
         </div>
       </div>
@@ -238,6 +226,7 @@ export default function Overview({ records, onNavigate }) {
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
         <CircleWidget title="Accepts Digital Payments?" yes={yesDigital} total={hasDigitalAnswer} yesLabel="Yes" noLabel="No — cash only" />
         <CircleWidget title="At Residential Property?" yes={yesResidential} total={hasResidential} yesLabel="Yes" noLabel="No" />
+        <CircleWidget title="Business at site (completed)" yes={totalYes} total={totalCompleted} yesLabel="Business found" noLabel="No business" />
         <BreakdownWidget title="If NO — What is there?" data={Object.entries(noBusinessBreakdown).map(([label,count])=>({label,count}))} />
         <BreakdownWidget title="Business Type" data={Object.entries(bizTypeBreakdown).map(([label,count])=>({label,count}))} />
         <BreakdownWidget title="Payment Types" data={Object.entries(paymentBreakdown).map(([label,count])=>({label,count}))} />
