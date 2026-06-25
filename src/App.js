@@ -6,6 +6,7 @@ import PCPage from "./pages/PCPage";
 import MapPage from "./pages/MapPage";
 import SitesPage from "./pages/SitesPage";
 import ReportsPage from "./pages/ReportsPage";
+import ExceptionsPage from "./pages/ExceptionsPage";
 import "./App.css";
 
 const PAGES = [
@@ -14,7 +15,8 @@ const PAGES = [
   { id: "pc",       label: "PC Names",  icon: "👤" },
   { id: "map",      label: "Map",       icon: "🗺" },
   { id: "sites",    label: "All Sites", icon: "📋" },
-  { id: "reports",  label: "Reports",   icon: "📊" },
+  { id: "reports",    label: "Reports",    icon: "📊" },
+  { id: "exceptions", label: "Exceptions", icon: "⚠" },
 ];
 
 export default function App() {
@@ -65,7 +67,7 @@ export default function App() {
     </div>
   );
 
-  const CurrentPage = { overview: Overview, regions: RegionPage, pc: PCPage, map: MapPage, sites: SitesPage, reports: ReportsPage }[page];
+  const CurrentPage = { overview: Overview, regions: RegionPage, pc: PCPage, map: MapPage, sites: SitesPage, reports: ReportsPage, exceptions: ExceptionsPage }[page];
 
   return (
     <div className="dash">
