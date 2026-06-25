@@ -20,12 +20,15 @@ export default function ReportsPage({ records }) {
     .filter(d => d && d.length === 10)
     .sort()[0] || today;
 
-  const [from, setFrom] = useState(firstSurveyDate);
-  const [to,   setTo]   = useState(today);
+  const [from, setFrom] = useState(() =>
+    records.map(r => rd(r.date)).filter(d => d && d.length === 10).sort()[0] || today
+  );
+  const [to, setTo] = useState(today);
 
+  // Always include all records — no date filtering excludes anything
   const filtered = records.filter(r => {
     const d = rd(r.date);
-    if (!d || d.length < 10) return true; // include undated records always
+    if (!d || d.length < 10) return true;
     return d >= from && d <= to;
   });
 
