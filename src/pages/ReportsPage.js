@@ -1,168 +1,83 @@
 import { useState } from "react";
-import { rc, rm, rd } from "../helpers";
 import "./pages.css";
 
-const today = new Date().toISOString().split("T")[0];
-
-const q = (v) => `"${(v||"").replace(/"/g,'""')}"`;
-const dl = (rows, name) => {
-  const csv = rows.map(r=>r.join(",")).join("\n");
-  const a = document.createElement("a");
-  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
-  a.download = name;
-  a.click();
-};
-
-export default function ReportsPage({ records }) {
-  // Find the earliest survey date from actual records
-  const allDates = records.map(r => rd(r.date)).filter(d => d && d.length === 10).sort();
-  const firstSurveyDate = allDates[0] || today;
-
-  const [from, setFrom] = useState(firstSurveyDate);
-  const [to,   setTo]   = useState(today);
-
-  // Filter only affects region breakdown display — totals always show everything
-  const filtered = records.filter(r => {
-    const d = rd(r.date);
-    if (!d || d.length < 10) return true; // undated records always included
-    return d >= from && d <= to;
-  });
-
-  // Totals always use ALL records regardless of date filter
-  const totalAll    = records.length;
-  const completeAll = records.filter(r => r.status === "complete").length;
-  const backlogAll  = records.filter(r => r.status === "backlog").length;
-
-  const complete  = filtered.filter(r => r.status==="complete");
-  const inProg    = filtered.filter(r => r.status==="in_progress");
-  const backlog   = filtered.filter(r => r.status==="backlog");
-  const total     = filtered.length;
-  const pct       = total>0 ? Math.round((complete.length/total)*100) : 0;
+export default function RegionPage({ records }) {
+  const [expanded, setExpanded] = useState(null);
+  const [search, setSearch] = useState("");
 
   const regionMap = {};
-  for (const r of filtered) {
-    if (!regionMap[r.region]) regionMap[r.region] = {complete:0,backlog:0,total:0};
+  for (const r of records) {
+    if (!regionMap[r.region]) regionMap[r.region] = { complete:0, backlog:0, total:0, pcs:{} };
     regionMap[r.region].total++;
     if (r.status==="complete") regionMap[r.region].complete++;
     else regionMap[r.region].backlog++;
+    if (!regionMap[r.region].pcs[r.pc]) regionMap[r.region].pcs[r.pc] = {complete:0,total:0};
+    regionMap[r.region].pcs[r.pc].total++;
+    if (r.status==="complete") regionMap[r.region].pcs[r.pc].complete++;
   }
+
   const regions = Object.entries(regionMap)
-    .map(([name,s])=>({name,...s,pct:Math.round((s.complete/s.total)*100)}))
-    .sort((a,b)=>b.pct-a.pct);
-
-  const exportSummary = () => {
-    const rows = [["Region","Total","Complete","Request Survey","Not Started","% Complete"]];
-    for (const s of regions) rows.push([s.name,s.total,s.complete,s.in_progress,s.backlog,s.pct+"%"]);
-    dl(rows, `mca-summary-${from}-to-${to}.csv`);
-  };
-
-  const exportCompleted = () => {
-    const rows = [["RC Number","Account Name","PC Name","Region","Date of Survey",
-      "Is there a Business?","If NO - What?","If NO Other","Business Type","Business Type Other",
-      "At Residential?","Accepts Digital?","Payment Types","Business Hours","Trading Hours Other",
-      "Comments","PC Lat","PC Long"]];
-    for (const r of complete) {
-      const isYes = rc(r.hasBusiness) === "YES";
-      const isNo  = rc(r.hasBusiness) === "NO";
-      rows.push([q(r.rcNumber),q(r.name),q(r.pc),q(r.region),rd(r.date),
-        rc(r.hasBusiness),
-        isNo  ? rc(r.ifNoBusiness)      : "",
-        isNo  ? q(r.noBusinessOther)    : "",
-        isYes ? rc(r.businessType)      : "",
-        isYes ? q(r.businessTypeOther)  : "",
-        isYes ? rc(r.atResidential)     : "",
-        isYes ? rc(r.acceptsDigital)    : "",
-        isYes ? `"${(r.paymentTypes||"").replace(/"/g, '""')}"`  : "",
-        isYes ? rc(r.businessHours)     : "",
-        isYes ? q(r.tradingHoursOther)  : "",
-        q(r.comments),
-        r.pcLat||"",r.pcLong||""]);
-    }
-    dl(rows, `mca-completed-${from}-to-${to}.csv`);
-  };
-
-  const exportAll = () => {
-    const rows = [["RC Number","Account Name","PC Name","Region","Status","Date of Survey",
-      "Is there a Business?","If NO - What?","Business Type","Accepts Digital?","Payment Types","Business Hours","Comments"]];
-    for (const r of filtered) {
-      rows.push([q(r.rcNumber),q(r.name),q(r.pc),q(r.region),r.status,rd(r.date),
-        rc(r.hasBusiness),
-        rc(r.hasBusiness)==="NO"  ? rc(r.ifNoBusiness) : "",
-        rc(r.hasBusiness)==="YES" ? rc(r.businessType) : "",
-        rc(r.hasBusiness)==="YES" ? rc(r.acceptsDigital) : "",
-        rc(r.hasBusiness)==="YES" ? `"${(r.paymentTypes||"").replace(/"/g, '""')}"`  : "",
-        rc(r.hasBusiness)==="YES" ? rc(r.businessHours) : "",
-        q(r.comments)]);
-    }
-    dl(rows, `mca-all-sites-${from}-to-${to}.csv`);
-  };
+    .map(([name,s]) => ({name,...s, pct:Math.round((s.complete/s.total)*100)}))
+    .filter(r => !search || r.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a,b) => b.pct - a.pct);
 
   return (
     <div className="page-stack">
-      {/* Date filter */}
       <div className="card">
-        <div className="card-title">Date range</div>
-        <div style={{display:"flex",gap:12,alignItems:"flex-end",flexWrap:"wrap"}}>
-          <div>
-            <label className="field-label">From</label>
-            <input className="search-input" type="date" value={from} min={firstSurveyDate} max={today} onChange={e=>setFrom(e.target.value)} style={{width:160}} />
-          </div>
-          <div>
-            <label className="field-label">To</label>
-            <input className="search-input" type="date" value={to} min={firstSurveyDate} max={today} onChange={e=>setTo(e.target.value)} style={{width:160}} />
-          </div>
-        </div>
+        <input className="search-input" type="text" placeholder="Search regions…"
+          value={search} onChange={e => setSearch(e.target.value)} />
       </div>
-
-      {/* Stats */}
-      <div className="grid-4">
-        <div className="stat-card"><div className="stat-label">Total</div><div className="stat-value">{totalAll}</div></div>
-        <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value" style={{color:"var(--green)"}}>{completeAll}</div><div className="stat-sub">{totalAll>0?Math.round((completeAll/totalAll)*100):0}%</div></div>
-        <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlogAll}</div></div>
-      </div>
-
-      {/* Region breakdown */}
       <div className="card">
-        <div className="card-title">By region</div>
+        <div className="card-title">All regions ({regions.length})</div>
         {regions.map((s,i) => {
           const cPct = Math.round((s.complete/s.total)*100);
-          const bPct = Math.max(0,100-cPct-iPct);
+          const bPct = Math.max(0, 100-cPct);
           const color = s.pct>=75?"var(--green)":s.pct>=25?"var(--orange)":"var(--red)";
+          const pcs = Object.entries(s.pcs).map(([name,p])=>({name,...p,pct:Math.round((p.complete/p.total)*100)})).sort((a,b)=>b.complete-a.complete);
+          const isOpen = expanded===s.name;
           return (
             <div key={s.name}>
-              {i>0&&<div className="divider"/>}
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <div style={{width:150,flexShrink:0}}>
-                  <div className="region-name">{s.name}</div>
-                  <div className="region-sub">{s.complete}/{s.total}</div>
-                </div>
-                <div style={{flex:1}}>
-                  <div className="stacked-bar">
-                    <div style={{width:cPct+"%",background:"var(--green)"}}/>
-                    <div style={{width:iPct+"%",background:"var(--orange)"}}/>
-                    <div style={{width:bPct+"%",background:"var(--border)"}}/>
+              {i>0 && <div className="divider"/>}
+              <div className="region-block">
+                <div className="region-header" onClick={() => setExpanded(isOpen?null:s.name)}>
+                  <div>
+                    <div className="region-name">{s.name}</div>
+                    <div className="region-sub">{s.total} sites · {s.complete} complete</div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <span style={{fontSize:15,fontWeight:700,color}}>{s.pct}%</span>
+                    <span className="chevron">{isOpen?"▲":"▼"}</span>
                   </div>
                 </div>
-                <div className="pct-row" style={{minWidth:200}}>
-                  <span style={{color:"var(--green)"}}>✓{cPct}%</span>
-                  <span style={{color:"var(--orange)"}}></span>
-                  <span style={{color:"var(--dim)"}}>○{bPct}%</span>
+                <div className="stacked-bar" style={{margin:"8px 0"}}>
+                  <div style={{width:cPct+"%",background:"var(--green)"}}/>
+                  <div style={{width:bPct+"%",background:"var(--border)"}}/>
                 </div>
-                <span style={{fontWeight:700,color,minWidth:40,textAlign:"right"}}>{s.pct}%</span>
+                <div className="pct-row">
+                  <span style={{color:"var(--green)"}}>✓ {cPct}%</span>
+                  <span style={{color:"var(--orange)"}}></span>
+                  <span style={{color:"var(--dim)"}}>○ {bPct}%</span>
+                </div>
+
+                {isOpen && (
+                  <div className="pc-list">
+                    <div className="pc-list-title">PC Names in {s.name}</div>
+                    {pcs.map(p => (
+                      <div key={p.name} className="pc-row">
+                        <span className="pc-name">{p.name}</span>
+                        <div className="bar-track" style={{flex:1}}>
+                          <div className="bar-fill" style={{width:p.pct+"%",background:"var(--green)"}}/>
+                        </div>
+                        <span className="pc-stat">{p.complete}/{p.total}</span>
+                        <span className="pc-pct" style={{color:p.pct>=75?"var(--green)":p.pct>=25?"var(--orange)":"var(--red)"}}>{p.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
-      </div>
-
-      {/* Downloads */}
-      <div className="card">
-        <div className="card-title">Download reports</div>
-        <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-          <button className="btn btn-primary" onClick={exportCompleted}>⬇ Completed sites ({complete.length})</button>
-          <button className="btn" onClick={exportSummary}>⬇ Region summary</button>
-          <button className="btn" onClick={exportAll}>⬇ All sites</button>
-        </div>
       </div>
     </div>
   );
