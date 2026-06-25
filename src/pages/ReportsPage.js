@@ -63,7 +63,7 @@ export default function ReportsPage({ records }) {
         isYes ? q(r.businessTypeOther)  : "",
         isYes ? rc(r.atResidential)     : "",
         isYes ? rc(r.acceptsDigital)    : "",
-        isYes ? rm(r.paymentTypes)      : "",
+        isYes ? `"${(r.paymentTypes||"").replace(/"/g, '""')}"`  : "",
         isYes ? rc(r.businessHours)     : "",
         isYes ? q(r.tradingHoursOther)  : "",
         q(r.comments),
@@ -81,7 +81,7 @@ export default function ReportsPage({ records }) {
         rc(r.hasBusiness)==="NO"  ? rc(r.ifNoBusiness) : "",
         rc(r.hasBusiness)==="YES" ? rc(r.businessType) : "",
         rc(r.hasBusiness)==="YES" ? rc(r.acceptsDigital) : "",
-        rc(r.hasBusiness)==="YES" ? rm(r.paymentTypes) : "",
+        rc(r.hasBusiness)==="YES" ? `"${(r.paymentTypes||"").replace(/"/g, '""')}"`  : "",
         rc(r.hasBusiness)==="YES" ? rc(r.businessHours) : "",
         q(r.comments)]);
     }
