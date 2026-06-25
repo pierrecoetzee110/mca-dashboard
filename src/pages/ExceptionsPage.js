@@ -45,21 +45,21 @@ export default function ExceptionsPage({ records }) {
 
   const downloadRegion = (region) => {
     const sites = regionMap[region]?.sites || [];
-    const rows = [["RC Number", "Account Name", "PC Name", "Region", "Status"]];
-    for (const r of sites) rows.push([q(r.rcNumber), q(r.name), q(r.pc), q(r.region), r.status === "backlog" ? "Not Started" : r.status]);
+    const rows = [["RC Number", "Account Name", "PC Name", "Region", "Address", "Status"]];
+    for (const r of sites) rows.push([q(r.rcNumber), q(r.name), q(r.pc), q(r.region), q(r.address||""), r.status === "backlog" ? "Not Started" : r.status]);
     dl(rows, `outstanding-${region.replace(/\s+/g,"-")}-${new Date().toISOString().split("T")[0]}.csv`);
   };
 
   const downloadPC = (region, pc) => {
     const sites = (regionMap[region]?.sites || []).filter(r => r.pc === pc);
-    const rows = [["RC Number", "Account Name", "PC Name", "Region", "Status"]];
-    for (const r of sites) rows.push([q(r.rcNumber), q(r.name), q(r.pc), q(r.region), r.status === "backlog" ? "Not Started" : r.status]);
+    const rows = [["RC Number", "Account Name", "PC Name", "Region", "Address", "Status"]];
+    for (const r of sites) rows.push([q(r.rcNumber), q(r.name), q(r.pc), q(r.region), q(r.address||""), r.status === "backlog" ? "Not Started" : r.status]);
     dl(rows, `outstanding-${pc.replace(/\s+/g,"-")}-${new Date().toISOString().split("T")[0]}.csv`);
   };
 
   const downloadAll = () => {
-    const rows = [["RC Number", "Account Name", "PC Name", "Region", "Status"]];
-    for (const r of outstanding) rows.push([q(r.rcNumber), q(r.name), q(r.pc), q(r.region), r.status === "backlog" ? "Not Started" : r.status]);
+    const rows = [["RC Number", "Account Name", "PC Name", "Region", "Address", "Status"]];
+    for (const r of outstanding) rows.push([q(r.rcNumber), q(r.name), q(r.pc), q(r.region), q(r.address||""), r.status === "backlog" ? "Not Started" : r.status]);
     dl(rows, `all-outstanding-${new Date().toISOString().split("T")[0]}.csv`);
   };
 
