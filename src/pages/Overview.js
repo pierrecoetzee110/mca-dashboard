@@ -97,8 +97,8 @@ export default function Overview({ records, onNavigate }) {
         </div>
       </div>
 
-      {/* Overall progress + activity */}
-      <div className="grid-2">
+      {/* Overall progress + activity + business */}
+      <div className="grid-3">
         <div className="card">
           <div className="card-title">Overall completion</div>
           <div style={{display:"flex", alignItems:"center", gap:24}}>
@@ -135,6 +135,34 @@ export default function Overview({ records, onNavigate }) {
             </div>
           </div>
         </div>
+
+        <div className="card">
+          <div className="card-title">Business at site (completed)</div>
+          <div className="activity-rows">
+            <div className="activity-row">
+              <span className="activity-label">Yes — business found</span>
+              <span className="activity-value" style={{color:"var(--green)"}}>{totalYes}</span>
+            </div>
+            <div className="divider" />
+            <div className="activity-row">
+              <span className="activity-label">No — no business</span>
+              <span className="activity-value" style={{color:"#ef4444"}}>{totalNo}</span>
+            </div>
+            <div className="divider" />
+            {bizRegions.map((s,i) => (
+              <div key={s.name}>
+                <div className="activity-row">
+                  <span className="activity-label" style={{fontSize:11}}>{s.name}</span>
+                  <span style={{fontSize:11,display:"flex",gap:8}}>
+                    <span style={{color:"var(--green)",fontWeight:600}}>✓{s.yesPct}%</span>
+                    <span style={{color:"#ef4444",fontWeight:600}}>✗{100-s.yesPct}%</span>
+                  </span>
+                </div>
+                {i < bizRegions.length-1 && <div className="divider"/>}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Top regions + top PCs */}
@@ -168,37 +196,6 @@ export default function Overview({ records, onNavigate }) {
                 <span className="mini-name">{s.name}</span>
                 <div className="bar-track" style={{flex:1}}><div className="bar-fill" style={{width:s.pct+"%", background:"var(--blue)"}}/></div>
                 <span className="mini-pct">{s.complete}/{s.total}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Business at site by region */}
-      <div className="card">
-        <div className="card-title" style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-          <span>Business at site — completed surveys</span>
-          <div style={{display:"flex",gap:16,fontSize:12}}>
-            <span style={{color:"var(--green)",fontWeight:600}}>✓ Yes: {totalYes} ({totalCompleted>0?Math.round((totalYes/totalCompleted)*100):0}%)</span>
-            <span style={{color:"var(--red)",fontWeight:600}}>✗ No: {totalNo} ({totalCompleted>0?Math.round((totalNo/totalCompleted)*100):0}%)</span>
-          </div>
-        </div>
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {bizRegions.map((s,i) => (
-            <div key={s.name}>
-              {i>0 && <div className="divider"/>}
-              <div style={{display:"grid",gridTemplateColumns:"150px 1fr 52px 52px",alignItems:"center",gap:12}}>
-                <div>
-                  <div className="region-name">{s.name}</div>
-                  <div className="region-sub">{s.total} completed</div>
-                </div>
-                <div className="bar-track" style={{height:10}}>
-                  <div style={{height:"100%",display:"flex"}}>
-                    <div style={{width:s.yesPct+"%",background:"var(--green)",height:"100%",borderRadius:"4px 0 0 4px"}}/>
-                    <div style={{width:(100-s.yesPct)+"%",background:"#ef4444",height:"100%",borderRadius:"0 4px 4px 0"}}/>
-                  </div>
-                </div>
-                <span style={{fontSize:12,fontWeight:600,color:"var(--green)",textAlign:"right"}}>✓{s.yesPct}%</span>
-                <span style={{fontSize:12,fontWeight:600,color:"#ef4444",textAlign:"right"}}>✗{100-s.yesPct}%</span>
               </div>
             </div>
           ))}
