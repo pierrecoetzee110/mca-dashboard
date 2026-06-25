@@ -51,7 +51,6 @@ export default function RegionPage({ records }) {
                 </div>
                 <div className="stacked-bar" style={{margin:"8px 0"}}>
                   <div style={{width:cPct+"%",background:"var(--green)"}}/>
-                  <div style={{width:iPct+"%",background:"var(--orange)"}}/>
                   <div style={{width:bPct+"%",background:"var(--border)"}}/>
                 </div>
                 <div className="pct-row">
