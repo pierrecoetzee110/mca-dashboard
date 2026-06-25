@@ -64,7 +64,7 @@ export default function MapPage({ records }) {
 
       const statusLabel = {
         complete:    "Complete",
-        in_progress: "In Progress",
+        in_progress: "Request Survey",
         backlog:     "Not Started",
       };
 
@@ -128,7 +128,7 @@ export default function MapPage({ records }) {
           {[
             { key: "all",         label: "All sites"   },
             { key: "complete",    label: "Completed"   },
-            { key: "in_progress", label: "In Progress" },
+            { key: "in_progress", label: "Request Survey" },
             { key: "backlog",     label: "Not Started" },
           ].map(f => (
             <button
