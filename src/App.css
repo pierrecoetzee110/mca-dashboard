@@ -77,3 +77,6 @@
 .btn-primary:hover { opacity:.9; background:var(--accent); }
 .page-stack { display:flex; flex-direction:column; gap:20px; }
 @media(max-width:640px) { .grid-4 { grid-template-columns:repeat(2,1fr); } .grid-3 { grid-template-columns:1fr 1fr; } .grid-2 { grid-template-columns:1fr; } }
+
+/* Exceptions page */
+.selected-row { background: var(--accent-dim) !important; }
