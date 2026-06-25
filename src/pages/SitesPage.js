@@ -78,7 +78,7 @@ export default function SitesPage({ records }) {
           <select className="filter-select" value={statusF} onChange={e=>setStatusF(e.target.value)}>
             <option value="">All statuses</option>
             <option value="complete">Complete</option>
-            <option value="in_progress">In Progress</option>
+            <option value="in_progress">Request Survey</option>
             <option value="backlog">Not Started</option>
           </select>
           <select className="filter-select" value={regionF} onChange={e=>setRegionF(e.target.value)}>
