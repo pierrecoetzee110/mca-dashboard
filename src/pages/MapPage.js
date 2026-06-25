@@ -68,18 +68,9 @@ export default function MapPage({ records }) {
         backlog:     "Not Started",
       };
 
-      // Normalize status - SmartSuite may return label or value
-      const normalize = (s) => {
-        if (!s) return "backlog";
-        const sl = s.toLowerCase();
-        if (sl === "complete" || sl === "completed") return "complete";
-        if (sl === "in_progress" || sl === "in process" || sl === "inprogress") return "in_progress";
-        return "backlog";
-      };
-
       const filtered = filter === "all"
         ? withGPS
-        : withGPS.filter(r => normalize(r.status) === filter);
+        : withGPS.filter(r => (r.status || "backlog") === filter);
 
       setCount(filtered.length);
 
@@ -88,7 +79,7 @@ export default function MapPage({ records }) {
       filtered.forEach(r => {
         const lat   = parseFloat(r.pcLat);
         const lng   = parseFloat(r.pcLong);
-        const normStatus = normalize(r.status);
+        const normStatus = r.status || "backlog";
         const color = colorMap[normStatus] || "#9aa3b2";
 
         const icon = L.divIcon({
@@ -99,13 +90,13 @@ export default function MapPage({ records }) {
         });
 
         L.marker([lat, lng], { icon })
-          .addTo(map)
+          .addTo(markerLayer)
           .bindPopup(`
             <div style="font-family:sans-serif;min-width:160px">
               <div style="font-weight:700;margin-bottom:4px">${r.name}</div>
               <div style="font-size:12px;color:#666">${r.rcNumber || ""}</div>
               <div style="font-size:12px;margin-top:4px">${r.region} · ${r.pc}</div>
-              <div style="margin-top:6px;font-weight:600;color:${color}">${statusLabel[normStatus] || r.status}</div>
+              <div style="margin-top:6px;font-weight:600;color:${color}">${statusLabel[normStatus] || normStatus}</div>
               ${r.date ? `<div style="font-size:11px;color:#999;margin-top:2px">${r.date}</div>` : ""}
             </div>
           `);
