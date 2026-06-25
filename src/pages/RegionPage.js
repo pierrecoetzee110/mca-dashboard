@@ -7,10 +7,9 @@ export default function RegionPage({ records }) {
 
   const regionMap = {};
   for (const r of records) {
-    if (!regionMap[r.region]) regionMap[r.region] = { complete:0, in_progress:0, backlog:0, total:0, pcs:{} };
+    if (!regionMap[r.region]) regionMap[r.region] = { complete:0, backlog:0, total:0, pcs:{} };
     regionMap[r.region].total++;
     if (r.status==="complete") regionMap[r.region].complete++;
-    else if (r.status==="in_progress") regionMap[r.region].in_progress++;
     else regionMap[r.region].backlog++;
     if (!regionMap[r.region].pcs[r.pc]) regionMap[r.region].pcs[r.pc] = {complete:0,total:0};
     regionMap[r.region].pcs[r.pc].total++;
@@ -32,8 +31,7 @@ export default function RegionPage({ records }) {
         <div className="card-title">All regions ({regions.length})</div>
         {regions.map((s,i) => {
           const cPct = Math.round((s.complete/s.total)*100);
-          const iPct = Math.round((s.in_progress/s.total)*100);
-          const bPct = Math.max(0, 100-cPct-iPct);
+          const bPct = Math.max(0, 100-cPct);
           const color = s.pct>=75?"var(--green)":s.pct>=25?"var(--orange)":"var(--red)";
           const pcs = Object.entries(s.pcs).map(([name,p])=>({name,...p,pct:Math.round((p.complete/p.total)*100)})).sort((a,b)=>b.complete-a.complete);
           const isOpen = expanded===s.name;
@@ -58,7 +56,7 @@ export default function RegionPage({ records }) {
                 </div>
                 <div className="pct-row">
                   <span style={{color:"var(--green)"}}>✓ {cPct}%</span>
-                  <span style={{color:"var(--orange)"}}>⟳ Request Survey {iPct}%</span>
+                  <span style={{color:"var(--orange)"}}></span>
                   <span style={{color:"var(--dim)"}}>○ {bPct}%</span>
                 </div>
 
