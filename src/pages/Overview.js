@@ -1,3 +1,4 @@
+import { rc } from "../helpers";
 import "./pages.css";
 
 function Ring({ pct, color, size = 80 }) {
@@ -51,6 +52,24 @@ export default function Overview({ records, onNavigate }) {
   const topPCs = Object.entries(pcMap)
     .map(([name, s]) => ({ name, ...s, pct: Math.round((s.complete/s.total)*100) }))
     .sort((a,b) => b.complete - a.complete).slice(0, 5);
+
+  // Business YES/NO by region for completed sites only
+  const bizByRegion = {};
+  for (const r of records) {
+    if (r.status !== "complete") continue;
+    if (!bizByRegion[r.region]) bizByRegion[r.region] = { yes: 0, no: 0, total: 0 };
+    bizByRegion[r.region].total++;
+    if (rc(r.hasBusiness) === "YES") bizByRegion[r.region].yes++;
+    else bizByRegion[r.region].no++;
+  }
+  const bizRegions = Object.entries(bizByRegion)
+    .map(([name, s]) => ({ name, ...s, yesPct: Math.round((s.yes / s.total) * 100) }))
+    .sort((a, b) => b.total - a.total);
+
+  // Overall YES/NO totals
+  const totalCompleted = records.filter(r => r.status === "complete").length;
+  const totalYes = records.filter(r => r.status === "complete" && rc(r.hasBusiness) === "YES").length;
+  const totalNo  = totalCompleted - totalYes;
 
   return (
     <div className="page-stack">
@@ -149,6 +168,37 @@ export default function Overview({ records, onNavigate }) {
                 <span className="mini-name">{s.name}</span>
                 <div className="bar-track" style={{flex:1}}><div className="bar-fill" style={{width:s.pct+"%", background:"var(--blue)"}}/></div>
                 <span className="mini-pct">{s.complete}/{s.total}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Business at site by region */}
+      <div className="card">
+        <div className="card-title" style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+          <span>Business at site — completed surveys</span>
+          <div style={{display:"flex",gap:16,fontSize:12}}>
+            <span style={{color:"var(--green)",fontWeight:600}}>✓ Yes: {totalYes} ({totalCompleted>0?Math.round((totalYes/totalCompleted)*100):0}%)</span>
+            <span style={{color:"var(--red)",fontWeight:600}}>✗ No: {totalNo} ({totalCompleted>0?Math.round((totalNo/totalCompleted)*100):0}%)</span>
+          </div>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {bizRegions.map((s,i) => (
+            <div key={s.name}>
+              {i>0 && <div className="divider"/>}
+              <div style={{display:"grid",gridTemplateColumns:"150px 1fr 52px 52px",alignItems:"center",gap:12}}>
+                <div>
+                  <div className="region-name">{s.name}</div>
+                  <div className="region-sub">{s.total} completed</div>
+                </div>
+                <div className="bar-track" style={{height:10}}>
+                  <div style={{height:"100%",display:"flex"}}>
+                    <div style={{width:s.yesPct+"%",background:"var(--green)",height:"100%",borderRadius:"4px 0 0 4px"}}/>
+                    <div style={{width:(100-s.yesPct)+"%",background:"#ef4444",height:"100%",borderRadius:"0 4px 4px 0"}}/>
+                  </div>
+                </div>
+                <span style={{fontSize:12,fontWeight:600,color:"var(--green)",textAlign:"right"}}>✓{s.yesPct}%</span>
+                <span style={{fontSize:12,fontWeight:600,color:"#ef4444",textAlign:"right"}}>✗{100-s.yesPct}%</span>
               </div>
             </div>
           ))}
