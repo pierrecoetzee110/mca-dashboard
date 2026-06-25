@@ -35,7 +35,7 @@ export default function PCPage({ records }) {
                 <th>PC Name</th>
                 <th>Region(s)</th>
                 <th>Completed</th>
-                <th>In Progress</th>
+                <th>Request Survey</th>
                 <th>Not Started</th>
                 <th>Total</th>
                 <th>%</th>
