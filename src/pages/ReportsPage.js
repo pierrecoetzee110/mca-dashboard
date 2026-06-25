@@ -53,7 +53,7 @@ export default function ReportsPage({ records }) {
     .sort((a,b)=>b.pct-a.pct);
 
   const exportSummary = () => {
-    const rows = [["Region","Total","Complete","In Progress","Not Started","% Complete"]];
+    const rows = [["Region","Total","Complete","Request Survey","Not Started","% Complete"]];
     for (const s of regions) rows.push([s.name,s.total,s.complete,s.in_progress,s.backlog,s.pct+"%"]);
     dl(rows, `mca-summary-${from}-to-${to}.csv`);
   };
@@ -120,7 +120,7 @@ export default function ReportsPage({ records }) {
       <div className="grid-4">
         <div className="stat-card"><div className="stat-label">Total</div><div className="stat-value">{totalAll}</div></div>
         <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value" style={{color:"var(--green)"}}>{completeAll}</div><div className="stat-sub">{totalAll>0?Math.round((completeAll/totalAll)*100):0}%</div></div>
-        <div className="stat-card"><div className="stat-label">In Progress</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProgAll}</div></div>
+        <div className="stat-card"><div className="stat-label">Request Survey</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProgAll}</div></div>
         <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlogAll}</div></div>
       </div>
 
