@@ -1,4 +1,4 @@
-import { rc } from "../helpers";
+import { rc, rm } from "../helpers";
 import "./pages.css";
 
 function Ring({ pct, color, size = 80 }) {
@@ -13,6 +13,111 @@ function Ring({ pct, color, size = 80 }) {
         transform={`rotate(-90 ${size/2} ${size/2})`} />
       <text x={size/2} y={size/2+5} textAnchor="middle" fontSize="14" fontWeight="700" fill={color}>{pct}%</text>
     </svg>
+  );
+}
+
+function CircleWidget({ title, yes, total, yesLabel, noLabel }) {
+  const pct = total > 0 ? Math.round((yes / total) * 100) : 0;
+  const no = total - yes;
+  return (
+    <div className="card">
+      <div className="card-title">{title}</div>
+      <div style={{display:"flex",alignItems:"center",gap:16}}>
+        <Ring pct={pct} color="var(--green)" size={80} />
+        <div style={{display:"flex",flexDirection:"column",gap:7}}>
+          <div className="legend-row"><span className="legend-dot" style={{background:"var(--green)"}}/>
+            {yesLabel||"Yes"} <strong>{yes}</strong>
+          </div>
+          <div className="legend-row"><span className="legend-dot" style={{background:"#ef4444"}}/>
+            {noLabel||"No"} <strong>{no}</strong>
+          </div>
+        </div>
+      </div>
+      {/* Question widgets */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+        <CircleWidget
+          title="Accepts Digital Payments?"
+          yes={yesDigital} total={hasDigitalAnswer}
+          yesLabel="Yes" noLabel="No — cash only"
+        />
+        <CircleWidget
+          title="At Residential Property?"
+          yes={yesResidential} total={hasResidential}
+          yesLabel="Yes" noLabel="No"
+        />
+        <BreakdownWidget
+          title="If NO — What is there?"
+          data={Object.entries(noBusinessBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Business Type"
+          data={Object.entries(bizTypeBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Payment Types"
+          data={Object.entries(paymentBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Business Hours"
+          data={Object.entries(hoursBreakdown).map(([label,count])=>({label,count}))}
+        />
+      </div>
+    </div>
+  );
+}
+
+function BreakdownWidget({ title, data }) {
+  const total = data.reduce((s, d) => s + d.count, 0);
+  if (total === 0) return null;
+  return (
+    <div className="card">
+      <div className="card-title">{title}</div>
+      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+        {data.sort((a,b)=>b.count-a.count).map(d => {
+          const pct = Math.round((d.count/total)*100);
+          return (
+            <div key={d.label}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}>
+                <span style={{color:"var(--muted)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"70%"}}>{d.label}</span>
+                <span style={{fontWeight:600,flexShrink:0}}>{d.count} <span style={{color:"var(--dim)"}}>({pct}%)</span></span>
+              </div>
+              <div className="bar-track" style={{height:5}}>
+                <div className="bar-fill" style={{width:pct+"%",background:"var(--accent)"}}/>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {/* Question widgets */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+        <CircleWidget
+          title="Accepts Digital Payments?"
+          yes={yesDigital} total={hasDigitalAnswer}
+          yesLabel="Yes" noLabel="No — cash only"
+        />
+        <CircleWidget
+          title="At Residential Property?"
+          yes={yesResidential} total={hasResidential}
+          yesLabel="Yes" noLabel="No"
+        />
+        <BreakdownWidget
+          title="If NO — What is there?"
+          data={Object.entries(noBusinessBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Business Type"
+          data={Object.entries(bizTypeBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Payment Types"
+          data={Object.entries(paymentBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Business Hours"
+          data={Object.entries(hoursBreakdown).map(([label,count])=>({label,count}))}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -70,6 +175,47 @@ export default function Overview({ records, onNavigate }) {
   const totalCompleted = records.filter(r => r.status === "complete").length;
   const totalYes = records.filter(r => r.status === "complete" && rc(r.hasBusiness) === "YES").length;
   const totalNo  = totalCompleted - totalYes;
+
+  // Widget data — completed sites only
+  const completed = records.filter(r => r.status === "complete");
+
+  // If NO — what is there
+  const noBusinessBreakdown = {};
+  completed.filter(r => rc(r.hasBusiness) === "NO").forEach(r => {
+    const v = rc(r.ifNoBusiness); if (!v) return;
+    noBusinessBreakdown[v] = (noBusinessBreakdown[v] || 0) + 1;
+  });
+
+  // Business type
+  const bizTypeBreakdown = {};
+  completed.filter(r => rc(r.hasBusiness) === "YES").forEach(r => {
+    const v = rc(r.businessType); if (!v) return;
+    bizTypeBreakdown[v] = (bizTypeBreakdown[v] || 0) + 1;
+  });
+
+  // Accepts digital
+  const yesDigital = completed.filter(r => rc(r.acceptsDigital) === "YES").length;
+  const hasDigitalAnswer = completed.filter(r => rc(r.acceptsDigital)).length;
+
+  // Payment types
+  const paymentBreakdown = {};
+  completed.filter(r => rc(r.acceptsDigital) === "YES").forEach(r => {
+    const v = r.paymentTypes; if (!v) return;
+    v.split(";").map(s => s.trim()).filter(Boolean).forEach(p => {
+      paymentBreakdown[p] = (paymentBreakdown[p] || 0) + 1;
+    });
+  });
+
+  // Business hours
+  const hoursBreakdown = {};
+  completed.filter(r => rc(r.hasBusiness) === "YES").forEach(r => {
+    const v = rc(r.businessHours); if (!v) return;
+    hoursBreakdown[v] = (hoursBreakdown[v] || 0) + 1;
+  });
+
+  // At residential
+  const yesResidential = completed.filter(r => rc(r.atResidential) === "Yes").length;
+  const hasResidential  = completed.filter(r => rc(r.atResidential)).length;
 
   return (
     <div className="page-stack">
@@ -184,6 +330,35 @@ export default function Overview({ records, onNavigate }) {
             </div>
           ))}
         </div>
+      </div>
+      {/* Question widgets */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+        <CircleWidget
+          title="Accepts Digital Payments?"
+          yes={yesDigital} total={hasDigitalAnswer}
+          yesLabel="Yes" noLabel="No — cash only"
+        />
+        <CircleWidget
+          title="At Residential Property?"
+          yes={yesResidential} total={hasResidential}
+          yesLabel="Yes" noLabel="No"
+        />
+        <BreakdownWidget
+          title="If NO — What is there?"
+          data={Object.entries(noBusinessBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Business Type"
+          data={Object.entries(bizTypeBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Payment Types"
+          data={Object.entries(paymentBreakdown).map(([label,count])=>({label,count}))}
+        />
+        <BreakdownWidget
+          title="Business Hours"
+          data={Object.entries(hoursBreakdown).map(([label,count])=>({label,count}))}
+        />
       </div>
     </div>
   );
