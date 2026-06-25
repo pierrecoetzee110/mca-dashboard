@@ -17,6 +17,6 @@ export const CL = {
 export const rc = (v) => !v ? "" : (CL[v] || v);
 export const rm = (v) => !v ? "" : Array.isArray(v) ? v.map(x => CL[typeof x==="object"?x.value:x]||(typeof x==="object"?x.value:x)).join(", ") : v.split(";").map(s=>CL[s.trim()]||s.trim()).join(", ");
 export const rd = (v) => { if (!v) return ""; if (typeof v==="string") return v.split("T")[0]; if (v.date) return v.date.split("T")[0]; return ""; };
-export const statusLabel = { complete: "Complete", in_progress: "In Progress", backlog: "Not Started" };
+export const statusLabel = { complete: "Complete", in_progress: "Request Survey", backlog: "Not Started" };
 export const statusColor = { complete: "var(--green)", in_progress: "var(--orange)", backlog: "var(--dim)" };
 export const statusBg    = { complete: "var(--green-dim)", in_progress: "var(--orange-dim)", backlog: "#f0f2f5" };
