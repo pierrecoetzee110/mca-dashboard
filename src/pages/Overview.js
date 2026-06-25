@@ -155,7 +155,7 @@ export default function Overview({ records, onNavigate }) {
       <div className="grid-4">
         <div className="stat-card"><div className="stat-label">Total sites</div><div className="stat-value">{total}</div><div className="stat-sub">across all regions</div></div>
         <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value" style={{color:"var(--green)"}}>{complete}</div><div className="stat-sub">{pct}% of total</div></div>
-        <div className="stat-card"><div className="stat-label">In Progress</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProg}</div><div className="stat-sub">{total>0?Math.round((inProg/total)*100):0}% of total</div></div>
+        <div className="stat-card"><div className="stat-label">Request Survey</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProg}</div><div className="stat-sub">{total>0?Math.round((inProg/total)*100):0}% of total</div></div>
         <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlog}</div><div className="stat-sub">{total>0?Math.round((backlog/total)*100):0}% of total</div></div>
       </div>
 
@@ -167,7 +167,7 @@ export default function Overview({ records, onNavigate }) {
             <Ring pct={pct} color="var(--green)" size={100} />
             <div style={{display:"flex",flexDirection:"column",gap:10,flex:1}}>
               <div className="legend-row"><span className="legend-dot" style={{background:"var(--green)"}}/>Complete <strong>{complete}</strong></div>
-              <div className="legend-row"><span className="legend-dot" style={{background:"var(--orange)"}}/>In Progress <strong>{inProg}</strong></div>
+              <div className="legend-row"><span className="legend-dot" style={{background:"var(--orange)"}}/>Request Survey <strong>{inProg}</strong></div>
               <div className="legend-row"><span className="legend-dot" style={{background:"var(--border)"}}/>Not Started <strong>{backlog}</strong></div>
             </div>
           </div>
