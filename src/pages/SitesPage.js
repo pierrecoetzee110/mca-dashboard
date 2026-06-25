@@ -42,7 +42,7 @@ export default function SitesPage({ records }) {
               <div style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:20,fontWeight:700}}>{r.name}</div>
               <div style={{fontSize:13,color:"var(--muted)",marginTop:4}}>{r.region} · {r.pc}</div>
             </div>
-            <span className={`badge badge-${r.status==="complete"?"complete":r.status==="in_progress"?"progress":"backlog"}`}>
+            <span className={`badge badge-${r.status==="complete"?"complete":false?"progress":"backlog"}`}>
               {statusLabel[r.status]||r.status}
             </span>
           </div>
@@ -78,7 +78,6 @@ export default function SitesPage({ records }) {
           <select className="filter-select" value={statusF} onChange={e=>setStatusF(e.target.value)}>
             <option value="">All statuses</option>
             <option value="complete">Complete</option>
-            <option value="in_progress">Request Survey</option>
             <option value="backlog">Not Started</option>
           </select>
           <select className="filter-select" value={regionF} onChange={e=>setRegionF(e.target.value)}>
@@ -110,7 +109,7 @@ export default function SitesPage({ records }) {
                   <td>{r.region}</td>
                   <td>{r.pc}</td>
                   <td>
-                    <span className={`badge badge-${r.status==="complete"?"complete":r.status==="in_progress"?"progress":"backlog"}`}>
+                    <span className={`badge badge-${r.status==="complete"?"complete":false?"progress":"backlog"}`}>
                       {statusLabel[r.status]||r.status}
                     </span>
                   </td>
