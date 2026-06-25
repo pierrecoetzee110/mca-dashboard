@@ -149,7 +149,7 @@ export default function ReportsPage({ records }) {
                 </div>
                 <div className="pct-row" style={{minWidth:200}}>
                   <span style={{color:"var(--green)"}}>✓{cPct}%</span>
-                  <span style={{color:"var(--orange)"}}>⟳{iPct}%</span>
+                  <span style={{color:"var(--orange)"}}>⟳ Request Survey {iPct}%</span>
                   <span style={{color:"var(--dim)"}}>○{bPct}%</span>
                 </div>
                 <span style={{fontWeight:700,color,minWidth:40,textAlign:"right"}}>{s.pct}%</span>
