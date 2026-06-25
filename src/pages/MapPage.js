@@ -74,6 +74,7 @@ export default function MapPage({ records }) {
 
       setCount(filtered.length);
 
+      const markerLayer = L.layerGroup().addTo(map);
       const bounds = [];
 
       filtered.forEach(r => {
