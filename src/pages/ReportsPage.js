@@ -15,22 +15,24 @@ const dl = (rows, name) => {
 
 export default function ReportsPage({ records }) {
   // Find the earliest survey date from actual records
-  const firstSurveyDate = records
-    .map(r => rd(r.date))
-    .filter(d => d && d.length === 10)
-    .sort()[0] || today;
+  const allDates = records.map(r => rd(r.date)).filter(d => d && d.length === 10).sort();
+  const firstSurveyDate = allDates[0] || today;
 
-  const [from, setFrom] = useState(() =>
-    records.map(r => rd(r.date)).filter(d => d && d.length === 10).sort()[0] || today
-  );
-  const [to, setTo] = useState(today);
+  const [from, setFrom] = useState(firstSurveyDate);
+  const [to,   setTo]   = useState(today);
 
-  // Always include all records — no date filtering excludes anything
+  // Filter only affects region breakdown display — totals always show everything
   const filtered = records.filter(r => {
     const d = rd(r.date);
-    if (!d || d.length < 10) return true;
+    if (!d || d.length < 10) return true; // undated records always included
     return d >= from && d <= to;
   });
+
+  // Totals always use ALL records regardless of date filter
+  const totalAll    = records.length;
+  const completeAll = records.filter(r => r.status === "complete").length;
+  const inProgAll   = records.filter(r => r.status === "in_progress").length;
+  const backlogAll  = records.filter(r => r.status === "backlog").length;
 
   const complete  = filtered.filter(r => r.status==="complete");
   const inProg    = filtered.filter(r => r.status==="in_progress");
@@ -116,10 +118,10 @@ export default function ReportsPage({ records }) {
 
       {/* Stats */}
       <div className="grid-4">
-        <div className="stat-card"><div className="stat-label">Total</div><div className="stat-value">{total}</div></div>
-        <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value" style={{color:"var(--green)"}}>{complete.length}</div><div className="stat-sub">{pct}%</div></div>
-        <div className="stat-card"><div className="stat-label">In Progress</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProg.length}</div></div>
-        <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlog.length}</div></div>
+        <div className="stat-card"><div className="stat-label">Total</div><div className="stat-value">{totalAll}</div></div>
+        <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value" style={{color:"var(--green)"}}>{completeAll}</div><div className="stat-sub">{totalAll>0?Math.round((completeAll/totalAll)*100):0}%</div></div>
+        <div className="stat-card"><div className="stat-label">In Progress</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProgAll}</div></div>
+        <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlogAll}</div></div>
       </div>
 
       {/* Region breakdown */}
