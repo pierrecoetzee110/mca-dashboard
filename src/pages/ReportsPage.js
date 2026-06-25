@@ -24,8 +24,9 @@ export default function ReportsPage({ records }) {
   const [to,   setTo]   = useState(today);
 
   const filtered = records.filter(r => {
-    if (!r.date) return true;
-    return r.date >= from && r.date <= to;
+    const d = rd(r.date);
+    if (!d || d.length < 10) return true; // include undated records always
+    return d >= from && d <= to;
   });
 
   const complete  = filtered.filter(r => r.status==="complete");
