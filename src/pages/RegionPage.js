@@ -58,7 +58,7 @@ export default function RegionPage({ records }) {
                 </div>
                 <div className="pct-row">
                   <span style={{color:"var(--green)"}}>✓ {cPct}%</span>
-                  <span style={{color:"var(--orange)"}}>⟳ {iPct}%</span>
+                  <span style={{color:"var(--orange)"}}>⟳ Request Survey {iPct}%</span>
                   <span style={{color:"var(--dim)"}}>○ {bPct}%</span>
                 </div>
 
