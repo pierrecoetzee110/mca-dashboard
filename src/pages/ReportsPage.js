@@ -31,7 +31,6 @@ export default function ReportsPage({ records }) {
   // Totals always use ALL records regardless of date filter
   const totalAll    = records.length;
   const completeAll = records.filter(r => r.status === "complete").length;
-  const inProgAll   = records.filter(r => r.status === "in_progress").length;
   const backlogAll  = records.filter(r => r.status === "backlog").length;
 
   const complete  = filtered.filter(r => r.status==="complete");
@@ -42,10 +41,9 @@ export default function ReportsPage({ records }) {
 
   const regionMap = {};
   for (const r of filtered) {
-    if (!regionMap[r.region]) regionMap[r.region] = {complete:0,in_progress:0,backlog:0,total:0};
+    if (!regionMap[r.region]) regionMap[r.region] = {complete:0,backlog:0,total:0};
     regionMap[r.region].total++;
     if (r.status==="complete") regionMap[r.region].complete++;
-    else if (r.status==="in_progress") regionMap[r.region].in_progress++;
     else regionMap[r.region].backlog++;
   }
   const regions = Object.entries(regionMap)
@@ -120,7 +118,6 @@ export default function ReportsPage({ records }) {
       <div className="grid-4">
         <div className="stat-card"><div className="stat-label">Total</div><div className="stat-value">{totalAll}</div></div>
         <div className="stat-card"><div className="stat-label">Completed</div><div className="stat-value" style={{color:"var(--green)"}}>{completeAll}</div><div className="stat-sub">{totalAll>0?Math.round((completeAll/totalAll)*100):0}%</div></div>
-        <div className="stat-card"><div className="stat-label">Request Survey</div><div className="stat-value" style={{color:"var(--orange)"}}>{inProgAll}</div></div>
         <div className="stat-card"><div className="stat-label">Not Started</div><div className="stat-value" style={{color:"var(--dim)"}}>{backlogAll}</div></div>
       </div>
 
@@ -129,7 +126,6 @@ export default function ReportsPage({ records }) {
         <div className="card-title">By region</div>
         {regions.map((s,i) => {
           const cPct = Math.round((s.complete/s.total)*100);
-          const iPct = Math.round((s.in_progress/s.total)*100);
           const bPct = Math.max(0,100-cPct-iPct);
           const color = s.pct>=75?"var(--green)":s.pct>=25?"var(--orange)":"var(--red)";
           return (
@@ -149,7 +145,7 @@ export default function ReportsPage({ records }) {
                 </div>
                 <div className="pct-row" style={{minWidth:200}}>
                   <span style={{color:"var(--green)"}}>✓{cPct}%</span>
-                  <span style={{color:"var(--orange)"}}>⟳ Request Survey {iPct}%</span>
+                  <span style={{color:"var(--orange)"}}></span>
                   <span style={{color:"var(--dim)"}}>○{bPct}%</span>
                 </div>
                 <span style={{fontWeight:700,color,minWidth:40,textAlign:"right"}}>{s.pct}%</span>
