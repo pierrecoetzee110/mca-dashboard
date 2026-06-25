@@ -58,7 +58,6 @@ export default function MapPage({ records }) {
 
       const colorMap = {
         complete:    "#16a34a",
-        in_progress: "#f97316",
         backlog:     "#9aa3b2",
       };
 
@@ -148,7 +147,6 @@ export default function MapPage({ records }) {
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div className="map-legend">
           <span><span className="map-dot" style={{ background: "#16a34a" }} />Complete</span>
-          <span><span className="map-dot" style={{ background: "#f97316" }} />Request Survey</span>
           <span><span className="map-dot" style={{ background: "#9aa3b2" }} />Not Started</span>
         </div>
 
