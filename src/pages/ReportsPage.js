@@ -3,7 +3,6 @@ import { rc, rm, rd } from "../helpers";
 import "./pages.css";
 
 const today = new Date().toISOString().split("T")[0];
-const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0];
 
 const q = (v) => `"${(v||"").replace(/"/g,'""')}"`;
 const dl = (rows, name) => {
@@ -15,7 +14,13 @@ const dl = (rows, name) => {
 };
 
 export default function ReportsPage({ records }) {
-  const [from, setFrom] = useState(firstOfMonth);
+  // Find the earliest survey date from actual records
+  const firstSurveyDate = records
+    .map(r => rd(r.date))
+    .filter(d => d && d.length === 10)
+    .sort()[0] || today;
+
+  const [from, setFrom] = useState(firstSurveyDate);
   const [to,   setTo]   = useState(today);
 
   const filtered = records.filter(r => {
@@ -96,11 +101,11 @@ export default function ReportsPage({ records }) {
         <div style={{display:"flex",gap:12,alignItems:"flex-end",flexWrap:"wrap"}}>
           <div>
             <label className="field-label">From</label>
-            <input className="search-input" type="date" value={from} onChange={e=>setFrom(e.target.value)} style={{width:160}} />
+            <input className="search-input" type="date" value={from} min={firstSurveyDate} max={today} onChange={e=>setFrom(e.target.value)} style={{width:160}} />
           </div>
           <div>
             <label className="field-label">To</label>
-            <input className="search-input" type="date" value={to} onChange={e=>setTo(e.target.value)} style={{width:160}} />
+            <input className="search-input" type="date" value={to} min={firstSurveyDate} max={today} onChange={e=>setTo(e.target.value)} style={{width:160}} />
           </div>
         </div>
       </div>
