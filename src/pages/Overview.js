@@ -138,29 +138,13 @@ export default function Overview({ records, onNavigate }) {
 
         <div className="card">
           <div className="card-title">Business at site (completed)</div>
-          <div className="activity-rows">
-            <div className="activity-row">
-              <span className="activity-label">Yes — business found</span>
-              <span className="activity-value" style={{color:"var(--green)"}}>{totalYes}</span>
+          <div style={{display:"flex",alignItems:"center",gap:20}}>
+            <Ring pct={totalCompleted>0?Math.round((totalYes/totalCompleted)*100):0} color="var(--green)" size={100} />
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <div className="legend-row"><span className="legend-dot" style={{background:"var(--green)"}}/>Business found <strong>{totalYes}</strong></div>
+              <div className="legend-row"><span className="legend-dot" style={{background:"#ef4444"}}/>No business <strong>{totalNo}</strong></div>
+              <div className="legend-row"><span className="legend-dot" style={{background:"var(--dim)"}}/>Total surveyed <strong>{totalCompleted}</strong></div>
             </div>
-            <div className="divider" />
-            <div className="activity-row">
-              <span className="activity-label">No — no business</span>
-              <span className="activity-value" style={{color:"#ef4444"}}>{totalNo}</span>
-            </div>
-            <div className="divider" />
-            {bizRegions.map((s,i) => (
-              <div key={s.name}>
-                <div className="activity-row">
-                  <span className="activity-label" style={{fontSize:11}}>{s.name}</span>
-                  <span style={{fontSize:11,display:"flex",gap:8}}>
-                    <span style={{color:"var(--green)",fontWeight:600}}>✓{s.yesPct}%</span>
-                    <span style={{color:"#ef4444",fontWeight:600}}>✗{100-s.yesPct}%</span>
-                  </span>
-                </div>
-                {i < bizRegions.length-1 && <div className="divider"/>}
-              </div>
-            ))}
           </div>
         </div>
       </div>
