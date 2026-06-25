@@ -6,11 +6,10 @@ export default function PCPage({ records }) {
 
   const pcMap = {};
   for (const r of records) {
-    if (!pcMap[r.pc]) pcMap[r.pc] = { complete:0, in_progress:0, backlog:0, total:0, regions:new Set() };
+    if (!pcMap[r.pc]) pcMap[r.pc] = { complete:0, backlog:0, total:0, regions:new Set() };
     pcMap[r.pc].total++;
     pcMap[r.pc].regions.add(r.region);
     if (r.status==="complete") pcMap[r.pc].complete++;
-    else if (r.status==="in_progress") pcMap[r.pc].in_progress++;
     else pcMap[r.pc].backlog++;
   }
 
@@ -50,7 +49,6 @@ export default function PCPage({ records }) {
                     <td className="pc-name-cell">{p.name}</td>
                     <td className="region-cell">{p.regions}</td>
                     <td style={{color:"var(--green)",fontWeight:600}}>{p.complete}</td>
-                    <td style={{color:"var(--orange)"}}>{p.in_progress}</td>
                     <td style={{color:"var(--dim)"}}>{p.backlog}</td>
                     <td>{p.total}</td>
                     <td><span style={{color,fontWeight:700}}>{p.pct}%</span></td>
