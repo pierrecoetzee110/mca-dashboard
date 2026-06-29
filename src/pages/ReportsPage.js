@@ -50,7 +50,7 @@ export default function ReportsPage({ records }) {
     .sort((a,b)=>b.pct-a.pct);
 
   const exportSummary = () => {
-    const rows = [["Region","Total","Complete","Request Survey","Not Started","% Complete"]];
+    const rows = [["Region","Total","Complete","Not Started","% Complete"]];
     for (const s of regions) rows.push([s.name,s.total,s.complete,s.backlog,s.pct+"%"]);
     dl(rows, `mca-summary-${from}-to-${to}.csv`);
   };
