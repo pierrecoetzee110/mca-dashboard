@@ -66,13 +66,22 @@ export default function Overview({ records, onNavigate }) {
   const backlog  = records.filter(r => r.status === "backlog").length;
   const pct      = total > 0 ? Math.round((complete / total) * 100) : 0;
 
-  const today   = new Date().toISOString().split("T")[0];
-  const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString().split("T")[0];
-  const monthAgo= new Date(Date.now() - 30*24*60*60*1000).toISOString().split("T")[0];
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+
+  // Start of current week (Monday)
+  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+  const diffToMonday = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diffToMonday);
+  const weekStart = monday.toISOString().split("T")[0];
+
+  // Start of current month (1st)
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
 
   const completedToday = records.filter(r => r.status === "complete" && r.date === today).length;
-  const completedWeek  = records.filter(r => r.status === "complete" && r.date >= weekAgo).length;
-  const completedMonth = records.filter(r => r.status === "complete" && r.date >= monthAgo).length;
+  const completedWeek  = records.filter(r => r.status === "complete" && r.date >= weekStart && r.date <= today).length;
+  const completedMonth = records.filter(r => r.status === "complete" && r.date >= monthStart && r.date <= today).length;
 
   // Top regions
   const regionMap = {};
